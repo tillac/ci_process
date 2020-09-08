@@ -19,11 +19,17 @@ GENERAL THING : REPRODUCE ENVIRONNEMENT (ROCKER)
 
 ### Update a dashboard
 
-DIAGRAMME CI -> REDO TEST_AUTO
+As an example, I wrote a little dashboard who use the `{quantmod}` package to extract some CAC40 data, the French stock market, and display them. You can check the code of the dashboard [here](https://github.com/tillac/ci_process/blob/master/dashboard/cac40_dashboard.Rmd).
 
-NEED TO UPDATE THE DATA BEHIND (GOOGLE SHEETS / DATABASE / SCRAPING)
+What is interesting with this dashboard is that it's built on top of moving data, since they need to be updated regularly (each day of each week) to make sense. Here the update comes from a package which pull the data from Yahoo. But it could also be linked to a database, a Google Sheets or from scraping a web page.
 
-COULD ALSO BE ON PUSH
+```
+
+```
+
+Since I didn't make it in a package, I had to do some changes to install dependecies (I list them by hand). If your dashboard is in a package (and it should be), just rely on `remotes::dev_package_deps(dependencies = TRUE)`.
+
+
 
 ### Automatic Twitter table
 

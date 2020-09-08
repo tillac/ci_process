@@ -4,7 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: fill
-    source_code: "https://github.com/tillac/ci_process/"
+    source_code: "https://github.com/tillac/ci_process/blob/master/dashboard/cac40_dashboard.Rmd"
 ---
 
 ```{r setup, include=FALSE}

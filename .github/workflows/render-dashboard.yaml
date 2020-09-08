@@ -1,0 +1,37 @@
+on:
+  push:
+    branches: master
+
+name: Render dashboard
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    container: rocker/verse
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          install.packages("flexdashboard")
+          install.packages("lubridate")
+          install.packages("sparkline")
+          install.packages("reactable")
+          install.packages("quantmod")
+        shell: Rscript {0}
+
+      - name: Render Dashboard
+        run: |
+          rmarkdown::render(input = "cac40_dashboard.Rmd")        
+        shell: Rscript {0}
+
+      - name: Deploy results to branch
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Update dashboard"
+          git push --set-upstream origin gh_pages

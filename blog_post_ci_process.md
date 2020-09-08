@@ -25,13 +25,50 @@ What is interesting with this dashboard is that it's built on top of moving data
 
 Let's analyse my workflow !
 
++ As you can notice, the workflow runs on push and on CRON (once every week). The push runs is useful when you want to update it by hand or push changes.
 + I initialize it by calling a Rocker container, `verse`. This one is really useful when you want to knit things with `{rmarkdown}` since everything needed is already installed.
 
 ```
+on:
+  push:
+    branches: master
+
+name: Render dashboard
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    container: rocker/verse
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
 
 ```
 
-Since I didn't make it in a package, I had to do some changes to install dependecies (I list them by hand). If your dashboard is in a package (and it should be), just rely on `remotes::dev_package_deps(dependencies = TRUE)`.
++ Since I didn't make it in a package, I had to do some changes to install dependecies (I list them by hand). If your dashboard is in a package (and it should be), just rely on `remotes::dev_package_deps(dependencies = TRUE)`.
+
+```
+      - name: Install dependencies
+        run: |
+          install.packages("flexdashboard")
+          install.packages("lubridate")
+          install.packages("sparkline")
+          install.packages("reactable")
+          install.packages("quantmod")
+        shell: Rscript {0}
+```
+
++ I just render the dashboard after
+
+```
+      - name: Render Dashboard
+        run: |
+          rmarkdown::render(input = "dashboard/cac40_dashboard.Rmd")        
+        shell: Rscript {0}
+```
+
++ And I push it to a new branch, called "gh-pages". I have to configure Github Pages on it after to get the HTML file as [here](). This git workflow is inspired by `pkgdown::deploy_to_branch`.
 
 ```
 

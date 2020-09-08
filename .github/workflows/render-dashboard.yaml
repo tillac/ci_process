@@ -35,4 +35,4 @@ jobs:
           git rm -rf --quiet .
           git add .
           git commit --allow-empty -m "Update dashboard"
-          git push HEAD:gh_pages
+          git push origin HEAD:gh_pages

@@ -23,9 +23,9 @@ As an example, I wrote a little dashboard who use the `{quantmod}` package to ex
 
 What is interesting with this dashboard is that it's built on top of moving data, since they need to be updated regularly (each day of each week) to make sense. Here the update comes from a package which pull the data from Yahoo. But it could also be linked to a database, a Google Sheets or from scraping a web page.
 
-Let's analyse my workflow !
+Let's analyse my [workflow](https://github.com/tillac/ci_process/blob/master/.github/workflows/render-dashboard.yaml) !
 
-+ As you can notice, the workflow runs on push and on CRON (once every week). The push runs is useful when you want to update it by hand or push changes.
++ As you can notice, the workflow runs on push and on CRON (once every day). The push runs is useful when you want to update it by hand or push changes.
 + I initialize it by calling a Rocker container, `verse`. This one is really useful when you want to knit things with `{rmarkdown}` since everything needed is already installed.
 
 ```

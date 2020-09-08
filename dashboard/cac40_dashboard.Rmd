@@ -1,0 +1,174 @@
+---
+title: "CAC 40 stock market"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    source_code: "https://github.com/tillac/ci_process/"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(lubridate)
+library(quantmod)
+library(reactable)
+library(sparkline)
+
+# get name and symbol
+base_data <-
+  tibble(
+    symbol = c(
+      "VIE.PA",
+      "AI.PA",
+      "BN.PA",
+      "ACA.PA",
+      "CA.PA",
+      "ML.PA",
+      "BNP.PA",
+      "RI.PA",
+      "SU.PA",
+      "VIV.PA",
+      "ENGI.PA",
+      "CAP.PA",
+      "LR.PA",
+      "ORA.PA",
+      "AC.PA",
+      "HO.PA",
+      "KER.PA",
+      "GLE.PA",
+      "EN.PA",
+      "SGO.PA",
+      "SAN.PA",
+      "DG.PA",
+      "ATO.PA",
+      "OR.PA",
+      "SW.PA",
+      "UG.PA",
+      "AIR.PA",
+      "MC.PA",
+      "FP.PA",
+      "FTI.PA"
+    ),
+    compagny_name = c(
+      "Veolia Environnement S.A.",
+      "L'Air Liquide S.A.",
+      "Danone S.A.",
+      "Crédit Agricole S.A.",
+      "Carrefour SA",
+      "Compagnie Générale des Établissements Michelin",
+      "BNP Paribas SA",
+      "Pernod Ricard SA",
+      "Schneider Electric S.E.",
+      "Vivendi SA",
+      "ENGIE SA",
+      "Capgemini SE",
+      "Legrand SA",
+      "Orange S.A.",
+      "Accor SA",
+      "Thales S.A.",
+      "Kering SA",
+      "Société Générale Société anonyme",
+      "Bouygues SA",
+      "Compagnie de Saint-Gobain S.A.",
+      "Sanofi",
+      "VINCI SA",
+      "Atos SE",
+      "L'Oréal S.A.",
+      "Sodexo S.A.",
+      "Peugeot S.A.",
+      "Airbus SE",
+      "LVMH Moët Hennessy - Louis Vuitton, Société Européenne",
+      "TOTAL S.A.",
+      "TechnipFMC plc"
+    )
+  )
+
+# name formatting
+Symbols <- base_data %>%
+  select(symbol)
+
+# get adjusted prices
+cac_prices <- getSymbols(
+  Symbols$symbol,
+  src = "yahoo",
+  from = today() - 31,
+  to = today(),
+  auto.assign = TRUE,
+  warnings = FALSE
+) %>%
+  map( ~ Ad(get(.))) %>%
+  reduce(merge) %>%
+  "colnames<-"(Symbols$symbol) %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "date") %>%
+  as_tibble() %>%
+  pivot_longer(-c(date), names_to = "symbol", values_to = "adj_price") %>%
+  left_join(base_data, by = c("symbol"))
+```
+
+Row
+-----------------------------------------------------------------------
+
+```{r valuebox}
+# top value
+top_value <- cac_prices %>%
+  filter(date == max(date)) %>%
+  slice_max(n = 1, adj_price)
+```
+
+### Top compagny
+
+```{r}
+valueBox(top_value$compagny_name, icon = "fa-building", color = "lightblue")
+```
+
+### Top value
+
+```{r}
+valueBox(top_value$adj_price, icon = "fa-chart-line", color = "orange")
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Table of all values
+
+```{r reactable}
+# table of all value with sparklines
+df_cac_table <- cac_prices %>%
+  mutate(adj_price = round(adj_price, 1)) %>%
+  group_by(compagny_name) %>%
+  summarise(
+    mean_value = round(mean(adj_price), 1),
+    max_value = round(max(adj_price), 1),
+    min_value = round(min(adj_price), 1),
+    adj_price = list(adj_price)
+  )
+
+reactable(
+  df_cac_table,
+  defaultPageSize = 30,
+  columns = list(
+    compagny_name = colDef("Compagny",
+                           filterable = TRUE),
+    mean_value = colDef("Mean over a month", sortable = TRUE),
+    max_value = colDef("Max value", sortable = TRUE),
+    min_value = colDef("Min value", sortable = TRUE),
+    adj_price = colDef(
+      "Change over time",
+      cell = function(value, index) {
+        sparkline(df_cac_table$adj_price[[index]])
+      }
+    )
+  )
+)
+```
+
+Row {data-height=70}
+----------------------------------------------------------------------
+
+### Details
+
+This dashboard was inspired by https://ihaddadenfodil.com/post/stocks-analysis-with-r/importing-and-visualizing-stock-market-data-in-r/
+

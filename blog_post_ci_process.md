@@ -25,13 +25,15 @@ What is interesting with this dashboard is that it's built on top of moving data
 
 Let's analyse my [workflow](https://github.com/tillac/ci_process/blob/master/.github/workflows/render-dashboard.yaml) !
 
-+ As you can notice, the workflow runs on push and on CRON (once every day). The push runs is useful when you want to update it by hand or push changes.
++ As you can notice, the workflow runs on push and on CRON (once every day). If needed for CRON, use [crontab guru](https://crontab.guru/). The push runs is useful when you want to update it by hand or push changes.
 + I initialize it by calling a Rocker container, `verse`. This one is really useful when you want to knit things with `{rmarkdown}` since everything needed is already installed.
 
 ```
 on:
   push:
     branches: master
+  schedule:
+    - cron: '0 12 * * *'
 
 name: Render dashboard
 

@@ -1,6 +1,8 @@
 on:
   push:
     branches: master
+  schedule:
+    - cron: '0 12 * * *'
 
 name: Render dashboard
 
@@ -33,6 +35,6 @@ jobs:
           git config --local user.name "GitHub Actions"
           git checkout --orphan gh-pages
           git rm -rf --quiet .
-          git add .
+          git add dashboard/cac40_dashboard.html
           git commit --allow-empty -m "Update dashboard"
           git push origin HEAD:gh_pages

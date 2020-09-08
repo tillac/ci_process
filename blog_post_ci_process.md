@@ -2,7 +2,7 @@
 
 ## CI to rule them all
 
-With R, I often design and build dashboard, with `{flexdashboard}` or HTML outputs using `{Rmarkdown}`. I also try to sometimes get data from Twitter with `{rtweet}`. Or to build tutorials or documentation with `{bookdown}` and `{pkgdown}`. I also create packages that need some checks. And I send mails to my clients with the content of their analysis (with `blastula` or `{gmailr}`).
+With R, I often design and build dashboard, with `{flexdashboard}` or HTML outputs using `{rmarkdown}`. I also try to sometimes get data from Twitter with `{rtweet}`. Or to build tutorials or documentation with `{bookdown}` and `{pkgdown}`. I also create packages that need some checks. And I send mails to my clients with the content of their analysis (with `blastula` or `{gmailr}`).
 
 All of that is really powerful and to me, it's modern data science. As you can see, I prefer static and lightweight HTML outputs rather than `{shiny}` apps. I found them better when you deal with "small" subjects and just need to show some insights with a regular update.
 
@@ -23,12 +23,19 @@ As an example, I wrote a little dashboard who use the `{quantmod}` package to ex
 
 What is interesting with this dashboard is that it's built on top of moving data, since they need to be updated regularly (each day of each week) to make sense. Here the update comes from a package which pull the data from Yahoo. But it could also be linked to a database, a Google Sheets or from scraping a web page.
 
+Let's analyse my workflow !
+
++ I initialize it by calling a Rocker container, `verse`. This one is really useful when you want to knit things with `{rmarkdown}` since everything needed is already installed.
+
 ```
 
 ```
 
 Since I didn't make it in a package, I had to do some changes to install dependecies (I list them by hand). If your dashboard is in a package (and it should be), just rely on `remotes::dev_package_deps(dependencies = TRUE)`.
 
+```
+
+```
 
 
 ### Automatic Twitter table

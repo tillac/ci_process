@@ -24,14 +24,15 @@ jobs:
 
       - name: Render Dashboard
         run: |
-          rmarkdown::render(input = "cac40_dashboard.Rmd")        
+          rmarkdown::render(input = "dashboard/cac40_dashboard.Rmd")        
         shell: Rscript {0}
 
       - name: Deploy results to branch
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git checkout -b gh-pages
+          git checkout --orphan gh-pages
+          git -rm -rf --quiet
           git add .
-          git commit -m "Update dashboard"
-          git push --set-upstream origin gh_pages
+          git commit --allow-empty -m "Update dashboard"
+          git push HEAD:gh_pages

@@ -35,6 +35,5 @@ jobs:
           git config --local user.name "GitHub Actions"
           git checkout --orphan gh-pages
           git rm -rf --quiet .
-          git add .
-          git commit --allow-empty -m "Update dashboard"
+          git commit --allow-empty -m "Initializing branch"
           git push origin HEAD:gh-pages

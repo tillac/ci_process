@@ -15,7 +15,7 @@ This part of using Github Actions to build and check packages or documentation i
 
 I also use CI for its ability to update my analysis. Because CI can use scheduled CRON processes, we can use it to re-run analysis and update them. How does this work ?
 
-GENERAL THING : REPRODUCE ENVIRONNEMENT (ROCKER)
+Since we don't want to check the results on multiples systems but just ensure it to run, I use Docker images to build the results. The R-specific [Rocker](https://www.rocker-project.org/) images are really useful here.
 
 ### Update a dashboard
 
@@ -70,10 +70,17 @@ jobs:
         shell: Rscript {0}
 ```
 
-+ And I push it to a new branch, called "gh-pages". I have to configure Github Pages on it after to get the HTML file as [here](). This git workflow is inspired by `pkgdown::deploy_to_branch`.
++ And I push it to a new branch, called "gh-pages". I have to configure Github Pages on it after to get the HTML file as [here](https://tillac.github.io/ci_process/dashboard/cac40_dashboard.html). This git workflow is inspired by `pkgdown::deploy_to_branch`.
 
 ```
-
+      - name: Deploy results to branch
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git checkout --orphan gh-pages
+          git rm -rf --quiet .
+          git commit --allow-empty -m "Initializing branch"
+          git push origin HEAD:gh-pages
 ```
 
 

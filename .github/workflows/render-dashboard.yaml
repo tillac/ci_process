@@ -36,4 +36,4 @@ jobs:
           git checkout --orphan gh-pages
           git rm -rf --quiet .
           git commit --allow-empty -m "Initializing branch"
-          git push origin HEAD:gh-pages
+          git push origin HEAD:gh-pages --force

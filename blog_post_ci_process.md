@@ -80,34 +80,38 @@ jobs:
           git checkout --orphan gh-pages
           git rm -rf --quiet .
           git commit --allow-empty -m "Initializing branch"
-          git push origin HEAD:gh-pages
+          git push origin HEAD:gh-pages --force
 ```
 
+### Scheduled your tweets
 
-### Automatic Twitter table
-
-MORPHEA
+RRUTWEETS
 
 ## To go further
 
-MAKE A SERVER
-MAKE YOUR OWN DOCKER IMAGES
-DASHBORD ENCRYPTION
+Some other possibles needs that could be covered :
 
-OTHER POSSIBLE NEEDS :
++ emails with updated custom reports ;
++ data validation using `{pointblank}` ;
++ Twitter robots (see [that](https://github.com/zhiiiyang/zhiiiyang/blob/master/.github/workflows/main.yml)) ;
++ get a table of your own tweets. You can see my [Morphea](https://www.tillac-data.com/2020-search-your-tweets-with-an-automatic-pipeline/) project about this subject. My workflow there is more detailed.
 
-+ email
-+ auto tweeting/robots
-+ database validation using `{pointblank}`
+I you want to want more, here are some options :
+
++ make your own Docker images to avoid downloading dependencies.
++ add a [password](https://github.com/dirkschumacher/encryptedRmd) to your dashboard with `{encryptedRmd}`.
++ if you want really more, it's better to set up your own server, using a VPS as an example. This solution is not really more difficult than using CI and the investment is worth it.
 
 ## To conclude
 
 Pros :
 
-+
-+
++ Light automation tool.
++ Avoid setting up big server infrastructures.
++ Fast to setup.
 
 Cons :
 
-+
-+
++ Minutes limits if it's a private repo.
++ Better to set up a server if you can.
++ Errors are hard to debug.

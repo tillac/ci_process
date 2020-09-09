@@ -26,6 +26,7 @@ What is interesting with this dashboard is that it's built on top of moving data
 Let's analyse my [workflow](https://github.com/tillac/ci_process/blob/master/.github/workflows/render-dashboard.yaml) !
 
 + As you can notice, the workflow runs on push and on CRON (once every day). If needed for CRON, use [crontab guru](https://crontab.guru/). The push runs is useful when you want to update it by hand or push changes.
+
 + I initialize it by calling a Rocker container, `verse`. This one is really useful when you want to knit things with `{rmarkdown}` since everything needed is already installed. 
 
 ```
@@ -43,6 +44,7 @@ jobs:
     container: rocker/verse
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      
     steps:
       - uses: actions/checkout@v2
 
@@ -85,7 +87,99 @@ jobs:
 
 ### Scheduled your tweets
 
-RRUTWEETS
+You can also use Github Actions to post scheduled tweets. This helps you to prepare them all in once and just forget about them after. An example of it is David Keyes' [R for the Rest of Us repo](https://github.com/rfortherestofus/rrutweets).
+
++ First you need a developper account and a to create an app. Follow `{rtweet}` [tutorial](https://docs.ropensci.org/rtweet/articles/auth.html) for this step.
+
++ Keep in mind that you need to allow your app to have write access rights. **You need to set the rights first and to generate the token after**. [Add the secrets to Github](). **AJOUTER LE LIEN**
+
+```
+token <-
+  create_token(
+    app = "auto_tweet263",
+    consumer_key = Sys.getenv("TW_API_KEY"),
+    consumer_secret = Sys.getenv("TW_SECRET_KEY"),
+    access_token = Sys.getenv("TW_ACCESS_TOKEN"),
+    access_secret = Sys.getenv("TW_SECRET_TOKEN"),
+    set_renv = FALSE
+  )
+```
+
++ You will also need a list of tweet you plan to post. Either as a plain file like csv or in a Google Sheets. Be sure you have a date and a text columns, to know when and what to post. You can also add some media if needed.
+
++ I wrote a little R script to take a tweet from this list, based on the current day as a filter. And I use `rtweet::post_tweet` to post it. I also added a security to check if tweet hasn't been post before on the same day.
+
+**MAJ APRES FINAL**
+
+```
+# List of tweets ----------------------------------------------------------
+# could also be an external file or a google sheets
+# -> use a secret and googlesheets4::gs_deauth()
+list_tweets <-
+  tibble(
+    tw_date = c(
+      "2020-09-09",
+      "2020-09-10",
+      "2020-09-11",
+      "2020-09-14",
+      "2020-09-15"
+    ),
+    tw_text =  c("My tweet 1", "My tweet 2", "My tweet 3", "My tweet 4", "My tweet 5"),
+    tw_media = c(NA, "media_link2", NA, NA, "media_link5")
+  ) %>%
+  mutate(tw_date = lubridate::as_date(tw_date))
+
+# Filter the right tweet --------------------------------------------------
+tw_to_tweet <- list_tweets %>%
+  filter(tw_date == lubridate::today())
+
+# Tweet them --------------------------------------------------------------
+# check if the media NA doesn't throw an error and write if/else in this case
+# this part could be a purrr::map if you have multiples tweets to send
+post_tweet(status = tw_to_tweet$tw_text,
+           media = tw_to_tweet$tw_media,
+           token = token)
+```
+
++ And a Github Actions workflow to run it each day. If you have no tweet to post, it just runs. Otherwise, it posts your tweet to Twitter. What you have to check here is the hour. Github Actions runs on GMT-0, so adjust the time of the CRON command to your needs. After you check everything is fine, just remove the push on master lines.
+
+```
+on:
+  push:
+    branches: master
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  collect:
+    name: Post tweets
+    runs-on: ubuntu-18.04
+    container: rocker/verse:3.6.3
+```
+
++ I add the secrets to the global env so R can call them.
+
+```
+    env:
+      TW_API_KEY: ${{ secrets.TW_API_KEY }}
+      TW_SECRET_KEY: ${{ secrets.TW_SECRET_KEY }}
+      TW_ACCESS_TOKEN: ${{ secrets.TW_ACCESS_TOKEN }}
+      TW_SECRET_TOKEN: ${{ secrets.TW_SECRET_TOKEN }}
+      SHEET_PATH: ${{ secrets.SHEET_PATH }}
+      
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Install dependencies
+        run: |
+          remotes::install_cran(c("rtweet"))
+          remotes::install_github("tidyverse/googlesheets4")
+        shell: Rscript {0}
+
+      - name: Run script
+        run: |-
+          Rscript tweets/scheduled_tweets.R
+```
 
 ## To go further
 

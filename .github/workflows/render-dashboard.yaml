@@ -8,10 +8,11 @@ name: Render dashboard
 
 jobs:
   dashboard:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     container: rocker/verse
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      
     steps:
       - uses: actions/checkout@v2
 

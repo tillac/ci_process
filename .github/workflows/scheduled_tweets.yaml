@@ -1,0 +1,31 @@
+on:
+  push:
+    branches: master
+  schedule:
+    - cron: '0 12 * * *'
+
+name: Post tweets
+
+jobs:
+  post:
+    runs-on: ubuntu-18.04
+    container: rocker/verse
+    env:
+      TW_API_KEY: ${{ secrets.TW_API_KEY }}
+      TW_SECRET_KEY: ${{ secrets.TW_SECRET_KEY }}
+      TW_ACCESS_TOKEN: ${{ secrets.TW_ACCESS_TOKEN }}
+      TW_SECRET_TOKEN: ${{ secrets.TW_SECRET_TOKEN }}
+      SHEET_PATH: ${{ secrets.SHEET_PATH }}
+      
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Install dependencies
+        run: |
+          remotes::install_cran(c("rtweet"))
+          remotes::install_github("tidyverse/googlesheets4")
+        shell: Rscript {0}
+
+      - name: Run script
+        run: |-
+          Rscript tweets/scheduled_tweets.R
